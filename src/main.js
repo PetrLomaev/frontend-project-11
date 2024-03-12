@@ -24,7 +24,7 @@ const validate = (fields) => {
 };
 
 const buttonAdd = document.querySelector('button[type="submit"]');
-buttonAdd.addEventListener('click', (e) => {
+buttonAdd.addEventListener('submit', (e) => {
   e.preventDefault();
   const checkUrl = state.inputValue;
   validate(checkUrl);
