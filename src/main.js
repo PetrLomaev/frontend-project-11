@@ -22,11 +22,14 @@ const validate = (fields) => {
     console.log('ошибка, неправильный юрл');
   }
 };
-
+const checkForm = () => {
 const buttonAdd = document.querySelector('button[type="submit"]');
 buttonAdd.addEventListener('submit', (e) => {
   e.preventDefault();
   const checkUrl = state.inputValue;
   validate(checkUrl);
 });
+}
+
+export default checkForm;
 

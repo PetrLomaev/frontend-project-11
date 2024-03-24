@@ -1,3 +1,5 @@
 import  './styles.scss';
 import  'bootstrap';
-console.log("Hello World!");
+import checkForm from './main.js';
+
+checkForm();
