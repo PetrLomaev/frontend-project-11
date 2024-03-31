@@ -5,31 +5,38 @@ const state = {
   inputValue: '',
 }
 
-const input = document.querySelector('#url-input');
-input.addEventListener('input', (e) => {
-  state.inputValue = e.target.value;
+const watchedState = onChange(state, (path) => {
+  const input = document.querySelector('#url-input');
+  input.addEventListener('input', (e) => {
+    state.inputValue = e.target.value;
+    alert(watchedState.inputValue);
+  });
 });
 
-const schema = yup.object().shape({
-  inputValue: yup.url(),
-});
+const schema = yup.string().url();
 
 const validate = (fields) => {
   try {
-    schema.validateSync(fields, { abortEarly: false });
+    schema.isValidSync(fields);
     return {};
   } catch (e) {
-    console.log('ошибка, неправильный юрл');
+    alert('ошибка, неправильный юрл');
   }
 };
+
+
+
 const checkForm = () => {
 const buttonAdd = document.querySelector('button[type="submit"]');
 buttonAdd.addEventListener('submit', (e) => {
   e.preventDefault();
-  const checkUrl = state.inputValue;
+  const checkUrl = watchedState.inputValue;
+  alert(checkUrl);
   validate(checkUrl);
 });
 }
+
+
 
 export default checkForm;
 
