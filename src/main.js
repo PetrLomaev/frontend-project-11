@@ -1,18 +1,8 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
+import i18n from 'i18next';
+import resources from './locales/index.js';
 
-const state = {
-  inputValue: '',
-}
-/*
-const watchedState = onChange(state, (path) => {
-  const input = document.querySelector('#url-input');
-  input.addEventListener('input', (e) => {
-    state.inputValue = e.target.value;
-    alert(watchedState.inputValue);
-  });
-});
-*/
 const schema = yup.string().url();
 
 const validate = (fields) => {
@@ -24,22 +14,57 @@ const validate = (fields) => {
   }
 };
 
-const checkForm = () => {
+const checkForm = (paragraph, watchedState, i18nextInstance) => {
 const form = document.querySelector('form');
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-  //const checkUrl = watchedState.inputValue;
   const formData = new FormData(e.target);
   const url = formData.get('url');
-  //validate(url);
-  const pEl = document.querySelector('p[class="feedback m-0 position-absolute small text-danger"]');
   const inputEl = document.querySelector('input[id="url-input"]');
   if (!validate(url)) {
-    inputEl.classList.add('is-invalid');
-    pEl.textContent = 'Ссылка должна быть валидным URL';
+    inputEl.classList.add('in-valid', 'is-invalid');
+    paragraph.textContent = i18nextInstance.t('messages.errURL');
+    watchedState.status = 'invalid';
+  } else {
+    paragraph.textContent = i18nextInstance.t('messages.succesAdd');
+    inputEl.classList.remove('in-valid', 'is-invalid');
+    paragraph.classList.replace('text-danger', 'text-success');
   }
 });
 }
+const app = async () => {
+  const { ru } = resources;
+  const pEl = document.querySelector('p[class="feedback m-0 position-absolute small text-danger"]');
+  const state = {
+    message: '',
+    currentLanguage: 'ru',
+    status: 'valid',
+  };
+  const i18nextInstance = i18n.createInstance();
+  await i18nextInstance.init({
+    lng: 'ru', // Текущий язык
+    debug: false,
+    resources: {
+      ru,
+    },
+  });
+  const watchedState = onChange(state, (path, value) => {
+    switch (path) {
+      case 'currentLanguage': i18nextInstance.changeLanguage(value).then(() => checkForm(pEl, watchedState, i18nextInstance));
+        break;
 
-export default checkForm;
+      case 'message': checkForm(pEl, watchedState, i18nextInstance);
+        break;
+
+      default:
+        break;
+    }
+  });
+  checkForm(pEl, watchedState, i18nextInstance);
+};
+
+
+
+
+export default app;
 

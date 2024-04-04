@@ -1,5 +1,5 @@
 import './styles.scss';
 import 'bootstrap';
-import checkForm from './main.js';
+import app from './main.js';
 
-checkForm();
+app();
