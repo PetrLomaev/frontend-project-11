@@ -3,22 +3,19 @@ import 'bootstrap';
 import app from './main.js';
 import axios from 'axios';
 
-const proxy = (url) => {
-  const root = 'https://allorigins.hexlet.app/get';
-  const rootUrl = new URL(root);
-  //console.log('rootUrl', rootUrl)
-  const inputUrl = encodeURIComponent(url);
-  rootUrl.searchParams.set('url', inputUrl);
-  console.log('rootUrl', rootUrl);
-  return rootUrl;
+const getProxy = (url) => {
+  const urlProxy = new URL('/get', 'https://allorigins.hexlet.app');
+  urlProxy.searchParams.set('disableCache', 'true');
+  urlProxy.searchParams.set('url', url);
+  console.log('urlProxy.toString', urlProxy.toString());
+  return urlProxy.toString();
 };
 
 const fn = async (url) => {
-  const response = await axios.get(proxy(url));
+  const response = await axios.get(getProxy(url));
   console.log('response', response); // тело ответа
-  //const responseJson = JSON.parse(response);
   const parser = new DOMParser();
-  const doc = parser.parseFromString(response, "text/xml");
+  const doc = parser.parseFromString(response.data, "text/xml");
   console.log('doc', doc);
 }
 fn('https://lorem-rss.hexlet.app/feed');
