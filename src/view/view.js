@@ -1,22 +1,7 @@
-import './styles.scss';
-import 'bootstrap';
-import app from './main.js';
-import axios from 'axios';
-/*
-// Функция для прокси
-const getProxy = (url) => {
-    const urlProxy = new URL('/get', 'https://allorigins.hexlet.app');
-    urlProxy.searchParams.set('disableCache', 'true');
-    urlProxy.searchParams.set('url', url);
-    return urlProxy.toString();
-  };
-  // Функция для получения xml-документа из ссылки. Из него нужно извлекать фиды, посты и т.д.
-const parserToXml = async (url) => {
-  const response = await axios.get(getProxy(url));
-  const parser = new DOMParser();
-  const docXtml = parser.parseFromString(response.data.contents, "text/xml");
-  console.log('docXtml', docXtml);
+import _ from "lodash";
 
+const renderFeedAndPosts = (docXtml, watchedState) => {
+  const { feeds, posts } = watchedState;
   const parsererror = docXtml.querySelector('parsererror');
   if (parsererror) {
     const errorParsing = parsererror.textContent;
@@ -27,6 +12,9 @@ const parserToXml = async (url) => {
     title: docXtml.querySelector('channel title').textContent,
     description: docXtml.querySelector('channel description').textContent,
   }
+
+  watchedState.feeds = [feed, ...feeds];
+
   const divFeed = document.querySelector('div[class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1 feeds"]');
 
   const divFeedTitle = document.createElement('div');
@@ -56,35 +44,40 @@ const parserToXml = async (url) => {
   divFeed.append(divFeedTitle, ulFeedDescription);
 
   const allItem = Array.from(docXtml.querySelectorAll('item'));
-    const allItemToObj = allItem.map((item) => {
-      return {
-        title: item.querySelector('title').textContent,
-        description: item.querySelector('description').textContent,
-        link: item.querySelector('link').textContent,
-      }
-    });
+  const allItemToObj = allItem.map((item) => {
+    const newPost = {
+      title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
+      link: item.querySelector('link').textContent,
+      //id: _.uniqueId(),
+    }
+    watchedState.posts = [newPost, ...posts];
+    return newPost;
+  });
     
-    const divAutoPosts = document.querySelector('div[class="col-md-10 col-lg-8 order-1 mx-auto posts"]');
-    const divPosts = document.createElement('div');
+  const divAutoPosts = document.querySelector('div[class="col-md-10 col-lg-8 order-1 mx-auto posts"]');
+  const divPosts = document.createElement('div');
     
-    divPosts.classList.add('card-body');
-    const h2El = document.createElement('h2');
-    h2El.classList.add('card-title', 'h4');
-    h2El.textContent = 'Посты';
-    divPosts.append(h2El);
-    const ulPosts = document.createElement('ul');
-    ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
-    allItemToObj.forEach(({ title, description, link }) => {
-      const liEl = document.createElement('li');
-      liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+  divPosts.classList.add('card-body');
+  const h2El = document.createElement('h2');
+  h2El.classList.add('card-title', 'h4');
+  h2El.textContent = 'Посты';
+  divPosts.append(h2El);
+  const ulPosts = document.createElement('ul');
+  ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
+  allItemToObj.forEach(({ title, description, link, id }) => {
 
-      const aEl = document.createElement('a');
-      aEl.classList.add('fw-bold');
-      aEl.setAttribute('href', link);
-      aEl.setAttribute('data-id', '');
-      aEl.setAttribute('target', '_blank');
-      aEl.setAttribute('rel', 'oopener noreferrer');
-      aEl.textContent = title;
+    const liEl = document.createElement('li');
+    liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+    //liEl.id = id;
+
+    const aEl = document.createElement('a');
+    aEl.classList.add('fw-bold');
+    aEl.setAttribute('href', link);
+    aEl.setAttribute('data-id', '');
+    aEl.setAttribute('target', '_blank');
+    aEl.setAttribute('rel', 'oopener noreferrer');
+    aEl.textContent = title;
 
       const buttonEl = document.createElement('button');
       buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
@@ -103,11 +96,6 @@ const parserToXml = async (url) => {
     })
     divPosts.append(ulPosts);
     divAutoPosts.append(divPosts);
+};
 
-}
-parserToXml('https://lorem-rss.hexlet.app/feed');
-*/
-    
-
-
-app();
+export default renderFeedAndPosts;

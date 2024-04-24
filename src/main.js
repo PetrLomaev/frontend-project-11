@@ -3,6 +3,8 @@ import onChange from 'on-change';
 import i18n from 'i18next';
 import axios from 'axios';
 import resources from './locales/index.js';
+import renderFeedAndPosts from './view/view.js';
+import updater from './view/updater.js';
 
 const schema = yup.string().url();
 
@@ -31,56 +33,60 @@ const parserToXml = async (url) => {
   return docXtml;
 }
 
-// Пока что прокинул сюда функцию для xml. Потом вынести в отдельный файл!
+
 const checkForm = (paragraph, watchedState, i18nextInstance) => {
   const form = document.querySelector('form');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
+    //watchedState.inputText = url;
+  
     const inputEl = document.querySelector('input[id="url-input"]');
     if (!validate(url)) {
-      inputEl.classList.add('in-valid', 'is-invalid');
+      inputEl.classList.add('in-valid', 'is-invalid', 'text-danger');
       paragraph.textContent = i18nextInstance.t('messages.errURL');
       watchedState.status = 'invalid';
+      watchedState.stateForm = 'not_filled';
     } else {
       paragraph.textContent = i18nextInstance.t('messages.succesAdd');
       inputEl.classList.remove('in-valid', 'is-invalid');
       paragraph.classList.replace('text-danger', 'text-success');
+      watchedState.inputText = [url, ...watchedState.inputText];
+      //watchedState.inputText = url;
+      watchedState.stateForm = 'filled';
+      console.log('watchedState', watchedState)
     }
-    const parsedXml = parserToXml(url);
-    const allItem = Array.from(parsedXml.querySelectorAll('item'));
-    const allItemToObj = allItem.map((item) => {
-      return {
-        title: item.querySelector('title').textContent,
-        description: item.querySelector('description').textContent,
-        link: item.querySelector('link').textContent,
-      }
-    });
-    const divAutoPosts = document.querySelector('div[class="col-md-10 col-lg-8 order-1 mx-auto posts"]');
-    const divPosts = document.createElement('div');
-    divPosts.outerHTML = '<div class="card-body"><h2 class="card-title h4">Посты</h2></div>';
-    const ulPosts = document.createElement('ul');
-    ulPosts.outerHTML = '<ul class="list-group border-0 rounded-0"></ul>';
-    // Ниже дикая жесть, тестирую отрисовку постов фидов и тд
-    allItemToObj.forEach(({ tittle, description, link }) => {
-      const liEl = document.createElement('li');
-      liEl.outerHTML = `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0">
-      <a href=${link} class="fw-bold" data-id="" target="_blank" rel="noopener noreferrer">${tittle}</a>
-      <button type="button" class="btn btn-outline-primary btn-sm" data-id="" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
-      </li>`;
-      ulPosts.append(liEl);
-    })
-    divPosts.append(ulPosts);
-    divAutoPosts.append(divPosts);
   });
 };
+
+const renderRss = (urls, watchedState) => {
+  
+  urls.forEach(async (url) => {
+    const readyDocXml = await parserToXml(url);
+    updater(readyDocXml, watchedState);
+  })
+
+  if (watchedState.inputText.length > 0) {
+    setTimeout(() => renderRss(watchedState.inputText, watchedState), 5000);
+  }
+  /*
+  const readyDocXml = await parserToXml(url);
+  updater(readyDocXml, watchedState);
+  console.log('readyDocXml', readyDocXml);
+  */
+  
+}
+
 
 const app = async () => {
   const { ru } = resources;
   const pEl = document.querySelector('p[class="feedback m-0 position-absolute small text-danger"]');
   const state = {
-    message: '',
+    inputText: [],
+    feeds: [],
+    posts: [],
+    stateForm: 'not_filled',
     currentLanguage: 'ru',
     status: 'valid',
   };
@@ -97,7 +103,7 @@ const app = async () => {
       case 'currentLanguage': i18nextInstance.changeLanguage(value).then(() => checkForm(pEl, watchedState, i18nextInstance));
         break;
 
-      case 'message': checkForm(pEl, watchedState, i18nextInstance);
+      case 'inputText': renderRss(watchedState.inputText, watchedState);
         break;
 
       default:
@@ -105,6 +111,8 @@ const app = async () => {
     }
   });
   checkForm(pEl, watchedState, i18nextInstance);
+  
+  //renderRss(state.inputText);
 };
 
 export default app;
