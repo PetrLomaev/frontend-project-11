@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 const updater = (docXtml, watchedState) => {
-  const { feeds, posts, stateForm } = watchedState;
+  const { feeds, posts, stateForm, visitedLinks } = watchedState;
   if (stateForm === 'not_filled') {
     return;
   }
@@ -60,6 +60,7 @@ const updater = (docXtml, watchedState) => {
       description: item.querySelector('description').textContent,
       link: item.querySelector('link').textContent,
       id: _.uniqueId(),
+      status: 'not_watched',
     }
     //watchedState.posts = [newPost, ...posts];
     return newPost;
@@ -84,7 +85,7 @@ const updater = (docXtml, watchedState) => {
   watchedState.posts = newItemsPost;
   console.log('newItemsPost', newItemsPost);
 
-  newItemsPost.forEach(({ title, description, link, id }) => {
+  newItemsPost.forEach(({ title, description, link, id, status }) => {
 
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
@@ -92,6 +93,9 @@ const updater = (docXtml, watchedState) => {
 
     const aEl = document.createElement('a');
     aEl.classList.add('fw-bold');
+    if (watchedState.visitedLinks.includes(link)) {
+      aEl.classList.replace('fw-bold', 'fw-normal');
+    }
     aEl.setAttribute('href', link);
     aEl.setAttribute('data-id', '');
     aEl.setAttribute('target', '_blank');
@@ -105,9 +109,11 @@ const updater = (docXtml, watchedState) => {
       buttonEl.setAttribute('data-bs-toggle', 'modal');
       buttonEl.setAttribute('data-bs-target', '#modal');
       buttonEl.textContent = 'Просмотр';
-      buttonEl.addEventListener('click', () => {
+      liEl.addEventListener('click', () => {
         const elDescription = document.querySelector('div[class="modal-body text-break"]');
         elDescription.textContent = description;
+        aEl.classList.replace('fw-bold', 'fw-normal');
+        watchedState.visitedLinks.push(link);
       });
 
       liEl.append(aEl, buttonEl);

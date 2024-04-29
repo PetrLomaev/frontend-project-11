@@ -86,6 +86,7 @@ const app = async () => {
     inputText: [],
     feeds: [],
     posts: [],
+    visitedLinks: [],
     stateForm: 'not_filled',
     currentLanguage: 'ru',
     status: 'valid',
