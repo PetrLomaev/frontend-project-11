@@ -2,6 +2,7 @@
 
 env:
   node: true
+  browser: true
 
 extends:
   - 'airbnb-base'
@@ -11,8 +12,6 @@ parserOptions:
 
 rules:
   no-console: 0
-  import/extensions:
-    - error
-    - ignorePackages
-    - js: always
-  no-underscore-dangle: [2, { "allow": ["__filename", "__dirname"] }]
+  import/extensions: 0
+  no-param-reassign: 0
+  js: 0

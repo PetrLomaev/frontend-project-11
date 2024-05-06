@@ -1,101 +1,159 @@
-import _ from "lodash";
+import onChange from 'on-change';
 
-const renderFeedAndPosts = (docXtml, watchedState) => {
-  const { feeds, posts } = watchedState;
-  const parsererror = docXtml.querySelector('parsererror');
-  if (parsererror) {
-    const errorParsing = parsererror.textContent;
-    throw errorParsing;
-  }
-  
-  const feed = {
-    title: docXtml.querySelector('channel title').textContent,
-    description: docXtml.querySelector('channel description').textContent,
-  }
-
-  watchedState.feeds = [feed, ...feeds];
-
-  const divFeed = document.querySelector('div[class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1 feeds"]');
+const renderFeeds = (state, elements, i18nextInstance) => {
+  elements.feedsEl.innerHTML = '';
+  const divEl = document.createElement('div');
+  divEl.classList.add('card', 'border-0');
+  elements.feedsEl.append(divEl);
 
   const divFeedTitle = document.createElement('div');
   divFeedTitle.classList.add('card-body');
+  divEl.append(divFeedTitle);
+
   const h2Feed = document.createElement('h2');
   h2Feed.classList.add('card-title', 'h4');
-  h2Feed.textContent = 'Фиды';
+  h2Feed.textContent = i18nextInstance.t('feeds.title');
   divFeedTitle.append(h2Feed);
 
   const ulFeedDescription = document.createElement('ul');
   ulFeedDescription.classList.add('list-group', 'border-0', 'rounded-0');
 
-  const liDescription = document.createElement('li');
-  liDescription.classList.add('list-group-item', 'border-0', 'border-end-0');
+  state.feeds.forEach((feed) => {
+    const liDescription = document.createElement('li');
+    liDescription.classList.add('list-group-item', 'border-0', 'border-end-0');
 
-  const h3Description = document.createElement('h3');
-  h3Description.classList.add('h6', 'm-0');
-  h3Description.textContent = feed.title;
+    const h3Description = document.createElement('h3');
+    h3Description.classList.add('h6', 'm-0');
+    h3Description.textContent = feed.title;
+    liDescription.append(h3Description);
 
-  const pDescription = document.createElement('p');
-  pDescription.classList.add('m-0', 'small', 'text-black-50');
-  pDescription.textContent = feed.description;
+    const pDescription = document.createElement('p');
+    pDescription.classList.add('m-0', 'small', 'text-black-50');
+    pDescription.textContent = feed.description;
+    liDescription.append(pDescription);
 
-  liDescription.append(h3Description, pDescription);
-  ulFeedDescription.append(liDescription);
-
-  divFeed.append(divFeedTitle, ulFeedDescription);
-
-  const allItem = Array.from(docXtml.querySelectorAll('item'));
-  const allItemToObj = allItem.map((item) => {
-    const newPost = {
-      title: item.querySelector('title').textContent,
-      description: item.querySelector('description').textContent,
-      link: item.querySelector('link').textContent,
-      //id: _.uniqueId(),
-    }
-    watchedState.posts = [newPost, ...posts];
-    return newPost;
+    ulFeedDescription.append(liDescription);
   });
-    
-  const divAutoPosts = document.querySelector('div[class="col-md-10 col-lg-8 order-1 mx-auto posts"]');
-  const divPosts = document.createElement('div');
-    
-  divPosts.classList.add('card-body');
+
+  divEl.append(ulFeedDescription);
+};
+
+const renderPosts = (state, elements, i18nextInstance) => {
+  elements.postsEl.innerHTML = '';
+  const divEl = document.createElement('div');
+  divEl.classList.add('card', 'border-0');
+  elements.postsEl.append(divEl);
+
+  const divPostsTitle = document.createElement('div');
+  divPostsTitle.classList.add('card-body');
+  divEl.append(divPostsTitle);
+
   const h2El = document.createElement('h2');
   h2El.classList.add('card-title', 'h4');
-  h2El.textContent = 'Посты';
-  divPosts.append(h2El);
+  h2El.textContent = i18nextInstance.t('posts.title');
+  divPostsTitle.append(h2El);
+
   const ulPosts = document.createElement('ul');
   ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
-  allItemToObj.forEach(({ title, description, link, id }) => {
 
+  state.posts.forEach(({ id, title, link }) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    //liEl.id = id;
 
     const aEl = document.createElement('a');
-    aEl.classList.add('fw-bold');
+    const currentClass = state.uiState.visitedLinks.has(id) ? 'fw-normal' : 'fw-bold';
+    aEl.classList.add(currentClass);
     aEl.setAttribute('href', link);
-    aEl.setAttribute('data-id', '');
+    aEl.setAttribute('data-id', id);
     aEl.setAttribute('target', '_blank');
     aEl.setAttribute('rel', 'oopener noreferrer');
     aEl.textContent = title;
+    liEl.append(aEl);
 
-      const buttonEl = document.createElement('button');
-      buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-      buttonEl.setAttribute('type', 'button');
-      buttonEl.setAttribute('data-id', '');
-      buttonEl.setAttribute('data-bs-toggle', 'modal');
-      buttonEl.setAttribute('data-bs-target', '#modal');
-      buttonEl.textContent = 'Просмотр';
-      buttonEl.addEventListener('click', () => {
-        const elDescription = document.querySelector('div[class="modal-body text-break"]');
-        elDescription.textContent = description;
-      });
+    const buttonEl = document.createElement('button');
+    buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    buttonEl.setAttribute('type', 'button');
+    buttonEl.setAttribute('data-id', id);
+    buttonEl.setAttribute('data-bs-toggle', 'modal');
+    buttonEl.setAttribute('data-bs-target', '#modal');
+    buttonEl.textContent = i18nextInstance.t('posts.buttonText');
 
-      liEl.append(aEl, buttonEl);
-      ulPosts.append(liEl);
-    })
-    divPosts.append(ulPosts);
-    divAutoPosts.append(divPosts);
+    liEl.append(buttonEl);
+
+    ulPosts.append(liEl);
+  });
+  divEl.append(ulPosts);
 };
+
+const renderError = (error, elements, i18nextInstance) => {
+  elements.feedbackEl.textContent = '';
+  if (error) {
+    elements.buttonAdd.disabled = false;
+    elements.feedbackEl.classList.remove('text-success');
+    elements.feedbackEl.classList.add('text-danger');
+    elements.feedbackEl.textContent = i18nextInstance.t(error);
+  }
+};
+
+const renderModal = (state, elements, modId) => {
+  const post = state.posts.find(({ id }) => modId === id.toString());
+  elements.modalTitle.textContent = post.title;
+  elements.modalBody.textContent = post.description;
+  elements.modalFooter.setAttribute('href', post.link);
+};
+
+const renderVisitedLinks = (links) => {
+  const currentVisitedID = [...links.values()][links.size - 1];
+  const currentLink = document.querySelector(`[data-id="${currentVisitedID}"]`);
+  currentLink.classList.toggle('fw-bold');
+  currentLink.classList.toggle('fw-normal');
+};
+
+const renderFeedAndPosts = (state, elements, i18nextInstance) => onChange(state, (path, value) => {
+  switch (path) {
+    case 'uiState.modalId':
+      renderModal(state, elements, value);
+      break;
+    case 'uiState.visitedLinks':
+      renderVisitedLinks(value);
+      break;
+    case 'feeds':
+      renderFeeds(state, elements, i18nextInstance);
+      break;
+    case 'posts':
+      renderPosts(state, elements, i18nextInstance);
+      break;
+    case 'rssForm.error':
+      renderError(value, elements, i18nextInstance);
+      break;
+    case 'rssForm.inputValueStatus':
+      if (!value) {
+        elements.inputEl.classList.add('is-invalid');
+        return;
+      }
+      elements.inputEl.classList.remove('is-invalid');
+      break;
+    case 'rssForm.stateForm':
+      if (value === 'filling') {
+        elements.buttonAdd.disabled = false;
+        return;
+      }
+      if (value === 'processing') {
+        elements.buttonAdd.disabled = true;
+        return;
+      }
+      if (value === 'sucess') {
+        elements.buttonAdd.disabled = false;
+        elements.form.reset();
+        elements.form.focus();
+        elements.feedbackEl.classList.remove('text-danger');
+        elements.feedbackEl.classList.add('text-success');
+        elements.feedbackEl.textContent = i18nextInstance.t('form.succesAdd');
+      }
+      break;
+    default:
+      throw new Error('Unknown path');
+  }
+});
 
 export default renderFeedAndPosts;

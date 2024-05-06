@@ -1,22 +1,24 @@
 export default {
-    translation: {
-      // BEGIN (write your solution here)
-      languages: {
-        ru: 'Русский',
-      },
-      messages: {
-        errURL: 'Ссылка должна быть валидным URL',
-        errURLAlreadyExists: 'RSS уже существует',
-        succesAdd: 'RSS успешно загружен',
-      },
-      buttons: {
-        counter: {
-          count_one: '{{count}} клик',
-          count_few: '{{count}} клика',
-          count_many: '{{count}} кликов',
-        },
-        reset: 'Сбросить',
-      },
-      // END
+  translation: {
+    languages: {
+      ru: 'Русский',
     },
-  };
+    form: {
+      succesAdd: 'RSS успешно загружен',
+      errors: {
+        urlAlreadyExists: 'RSS уже существует',
+        notBeEmpty: 'Не должно быть пустым',
+        notValidUrl: 'Ссылка должна быть валидным URL',
+        notContainValidRss: 'Ресурс не содержит валидный RSS',
+        networkError: 'Ошибка сети',
+      },
+    },
+    feeds: {
+      title: 'Фиды',
+    },
+    posts: {
+      title: 'Посты',
+      buttonText: 'Просмотр',
+    },
+  },
+};
