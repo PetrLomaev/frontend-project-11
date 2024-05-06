@@ -11,4 +11,4 @@
 Displays and updates added RSS links
 
 
-Link: https://frontend-project-11-kev9h6chs-petrlomaevs-projects.vercel.app/
+Link: https://frontend-project-11-m3nwyx0kk-petrlomaevs-projects.vercel.app
