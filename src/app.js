@@ -75,7 +75,7 @@ const app = () => {
         } else if (err.isParseError) {
           watchedState.rssForm.error = 'form.errors.notContainValidRss';
         } else if (axios.isAxiosError(err)) {
-          watchedState.rssForm.error = 'form.errors.networkProblems';
+          watchedState.rssForm.error = 'form.errors.networkError';
         } else {
           watchedState.rssForm.error = err;
         }
