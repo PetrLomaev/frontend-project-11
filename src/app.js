@@ -46,55 +46,55 @@ const app = () => {
     form, inputEl, buttonAdd, feedbackEl, feedsEl, postsEl, modalTitle, modalBody, modalFooter,
   };
 
-  const watchedState = renderFeedAndPosts(state, elements, i18nextInstance);
+  const viewState = renderFeedAndPosts(state, elements, i18nextInstance);
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    watchedState.rssForm.stateForm = 'filling';
+    viewState.rssForm.stateForm = 'filling';
     const formData = new FormData(e.target);
     const url = formData.get('url');
-    const urlsList = watchedState.feeds.map((feed) => feed.url);
+    const urlsList = viewState.feeds.map((feed) => feed.url);
     validator(url, urlsList, i18nextInstance)
       .then((validUrl) => {
-        watchedState.rssForm.error = null;
-        watchedState.rssForm.stateForm = 'processing';
+        viewState.rssForm.error = null;
+        viewState.rssForm.stateForm = 'processing';
         return axios.get(getProxy(validUrl));
       })
       .then((response) => {
         const [feed, posts] = parserToXml(response.data.contents);
         const newFeed = { ...feed, url };
         const newPosts = posts.map((post) => ({ ...post, feedId: newFeed.id }));
-        watchedState.feeds = [newFeed, ...watchedState.feeds];
-        watchedState.posts = [...newPosts, ...watchedState.posts];
-        watchedState.rssForm.stateForm = 'sucess';
+        viewState.feeds = [newFeed, ...viewState.feeds];
+        viewState.posts = [...newPosts, ...viewState.posts];
+        viewState.rssForm.stateForm = 'sucess';
       })
       .catch((err) => {
-        watchedState.rssForm.inputValueStatus = false;
+        viewState.rssForm.inputValueStatus = false;
         if (err.name === 'ValidationError') {
-          watchedState.rssForm.error = err.message;
+          viewState.rssForm.error = err.message;
         } else if (err.isParseError) {
-          watchedState.rssForm.error = 'form.errors.notContainValidRss';
+          viewState.rssForm.error = 'form.errors.notContainValidRss';
         } else if (axios.isAxiosError(err)) {
-          watchedState.rssForm.error = 'form.errors.networkError';
+          viewState.rssForm.error = 'form.errors.networkError';
         } else {
-          watchedState.rssForm.error = err;
+          viewState.rssForm.error = err;
         }
-        watchedState.rssForm.stateForm = 'filling';
+        viewState.rssForm.stateForm = 'filling';
       });
 
     postsEl.addEventListener('click', (event) => {
       if (event.target.closest('a')) {
         const { id } = event.target.dataset;
-        watchedState.uiState.visitedLinks.add(id);
+        viewState.uiState.visitedLinks.add(id);
       }
       if (event.target.closest('button')) {
         const { id } = event.target.dataset;
-        watchedState.uiState.visitedLinks.add(id);
-        watchedState.uiState.modalId = id;
+        viewState.uiState.visitedLinks.add(id);
+        viewState.uiState.modalId = id;
       }
     });
 
-    setTimeout(() => updatePosts(watchedState), 5000);
+    setTimeout(() => updatePosts(viewState), 5000);
   });
 };
 
