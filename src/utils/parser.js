@@ -5,7 +5,8 @@ const parserToXml = (response) => {
   const docXtml = parser.parseFromString(response, 'text/xml');
   const parsererror = docXtml.querySelector('parsererror');
   if (parsererror) {
-    const errorParsing = parsererror.textContent;
+    const errorParsing = new Error(parsererror.textContent);
+    errorParsing.isParseError = true;
     throw errorParsing;
   }
 

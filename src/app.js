@@ -69,13 +69,15 @@ const app = () => {
         watchedState.rssForm.stateForm = 'sucess';
       })
       .catch((err) => {
-        watchedState.rssForm.inputValueStatus = err.name !== 'ValidationError';
+        watchedState.rssForm.inputValueStatus = false;
         if (err.name === 'ValidationError') {
           watchedState.rssForm.error = err.message;
-        } else if (err.NotValidRss) {
-          watchedState.rssForm.error = 'form.error.notValidUrl';
+        } else if (err.isParseError) {
+          watchedState.rssForm.error = 'form.errors.notContainValidRss';
         } else if (axios.isAxiosError(err)) {
           watchedState.rssForm.error = 'form.errors.networkProblems';
+        } else {
+          watchedState.rssForm.error = err;
         }
         watchedState.rssForm.stateForm = 'filling';
       });

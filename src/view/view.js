@@ -95,7 +95,7 @@ const renderError = (error, elements, i18nextInstance) => {
   }
 };
 
-const renderModal = (state, elements, modId) => {
+const renderModalWindow = (state, elements, modId) => {
   const post = state.posts.find(({ id }) => modId === id.toString());
   elements.modalTitle.textContent = post.title;
   elements.modalBody.textContent = post.description;
@@ -112,7 +112,7 @@ const renderVisitedLinks = (links) => {
 const renderFeedAndPosts = (state, elements, i18nextInstance) => onChange(state, (path, value) => {
   switch (path) {
     case 'uiState.modalId':
-      renderModal(state, elements, value);
+      renderModalWindow(state, elements, value);
       break;
     case 'uiState.visitedLinks':
       renderVisitedLinks(value);
