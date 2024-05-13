@@ -1,6 +1,8 @@
 import i18next from 'i18next';
 import axios from 'axios';
+import _ from 'lodash';
 import resources from './locales/index.js';
+import initStartView from './view/initStartView.js';
 import viewFeedAndPosts from './view/view.js';
 import validator from './utils/validator.js';
 import getProxy from './utils/proxify.js';
@@ -32,23 +34,34 @@ const app = () => {
     },
   });
 
-  const form = document.querySelector('form');
-  const inputEl = document.querySelector('#url-input');
-  const buttonAdd = document.querySelector('button[type="submit"]');
-  const feedbackEl = document.querySelector('.feedback');
-  const feedsEl = document.querySelector('.feeds');
-  const postsEl = document.querySelector('.posts');
-  const modalTitle = document.querySelector('.modal-title');
-  const modalBody = document.querySelector('.modal-body');
-  const modalFooter = document.querySelector('.modal-footer');
-
-  const elements = {
-    form, inputEl, buttonAdd, feedbackEl, feedsEl, postsEl, modalTitle, modalBody, modalFooter,
+  const elementsForStartView = {
+    header: document.querySelector('h1'),
+    headerDescription: document.querySelector('p[class="lead"]'),
+    labelForUrlInput: document.querySelector('.form-floating label'),
+    inputPlaceholder: document.querySelector('.form-floating input'),
+    exampleLink: document.querySelector('p[class="mt-2 mb-0 text-white-50"]'),
+    rssButtonAdd: document.querySelector('.col-auto button'),
+    modalButtonReadFully: document.querySelector('.modal-footer a'),
+    modalButtonClose: document.querySelector('.modal-footer button'),
   };
 
-  const watchedState = viewFeedAndPosts(state, elements, i18nextInstance);
+  initStartView(elementsForStartView, i18nextInstance);
 
-  form.addEventListener('submit', (e) => {
+  const elementsForInitFeedAndPosts = {
+    form: document.querySelector('form'),
+    inputEl: document.querySelector('#url-input'),
+    buttonAdd: document.querySelector('button[type="submit"]'),
+    feedbackEl: document.querySelector('.feedback'),
+    feedsEl: document.querySelector('.feeds'),
+    postsEl: document.querySelector('.posts'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    modalFooter: document.querySelector('.modal-footer'),
+  };
+
+  const watchedState = viewFeedAndPosts(state, elementsForInitFeedAndPosts, i18nextInstance);
+
+  elementsForInitFeedAndPosts.form.addEventListener('submit', (e) => {
     e.preventDefault();
     watchedState.rssForm.stateForm = 'filling';
     const formData = new FormData(e.target);
@@ -62,8 +75,8 @@ const app = () => {
       })
       .then((response) => {
         const [feed, posts] = parserToXml(response.data.contents);
-        const newFeed = { ...feed, url };
-        const newPosts = posts.map((post) => ({ ...post, feedId: newFeed.id }));
+        const newFeed = { ...feed, id: _.uniqueId(), url };
+        const newPosts = posts.map((post) => ({ ...post, id: _.uniqueId(), feedId: newFeed.id }));
         watchedState.feeds = [newFeed, ...watchedState.feeds];
         watchedState.posts = [...newPosts, ...watchedState.posts];
         watchedState.rssForm.stateForm = 'sucess';
@@ -82,7 +95,7 @@ const app = () => {
         watchedState.rssForm.stateForm = 'filling';
       });
 
-    postsEl.addEventListener('click', (event) => {
+    elementsForInitFeedAndPosts.postsEl.addEventListener('click', (event) => {
       if (event.target.closest('a')) {
         const { id } = event.target.dataset;
         watchedState.uiState.visitedLinks.add(id);

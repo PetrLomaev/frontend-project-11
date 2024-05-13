@@ -1,16 +1,13 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "[![Actions Status](https://github.com/PetrLomaev/frontend-project-11/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/PetrLomaev/frontend-project-11/actions)",
+  "description": "RSS-agregator: displays and updates added RSS links",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/PetrLomaev/frontend-project-11.git"
   },
-  "author": "",
+  "author": "Petr Lomaev",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/PetrLomaev/frontend-project-11/issues"

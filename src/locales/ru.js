@@ -20,5 +20,15 @@ export default {
       title: 'Посты',
       buttonText: 'Просмотр',
     },
+    startsView: {
+      header: 'RSS агрегатор',
+      headerDescription: 'Начните читать RSS сегодня! Это легко, это красиво.',
+      labelForUrlInput: 'Ссылка RSS',
+      inputPlaceholder: 'ссылка RSS',
+      exampleLink: 'Пример: https://lorem-rss.hexlet.app/feed',
+      rssButtonAdd: 'Добавить',
+      modalButtonReadFully: 'Читать полностью',
+      modalButtonClose: 'Закрыть',
+    },
   },
 };
